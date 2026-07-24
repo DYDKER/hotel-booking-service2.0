@@ -42,3 +42,6 @@ ignore = []
 DJANGO_SETTINGS_MODULE = "config.settings"
 pythonpath = ["src"]
 testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/**/migrations/*.py" = ["E501"]
