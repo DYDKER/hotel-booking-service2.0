@@ -7,6 +7,10 @@ class RoomValidationError(Exception):
     pass
 
 
+class RoomNotFound(Exception):
+    pass
+
+
 def create_room(description: str, price_per_night: str) -> Room:
     if description is None or description.strip() == "":
         raise RoomValidationError("description is required")
@@ -29,3 +33,11 @@ def list_rooms(sort=None, order="asc"):
             ordering = "-" + ordering
         rooms = rooms.order_by(ordering)
     return rooms
+
+
+def delete_room(room_id):
+    try:
+        room = Room.objects.get(pk=room_id)
+    except Room.DoesNotExist:
+        raise RoomNotFound("room not found") from None
+    room.delete()

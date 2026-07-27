@@ -32,3 +32,13 @@ def list_rooms(request):
             }
         )
     return JsonResponse(data, safe=False)
+
+
+@require_POST
+def delete_room(request):
+    room_id = request.POST.get("room_id")
+    try:
+        services.delete_room(room_id=room_id)
+    except services.RoomNotFound as error:
+        return JsonResponse({"error": str(error)}, status=404)
+    return JsonResponse({"deleted": True})

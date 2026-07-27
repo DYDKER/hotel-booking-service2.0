@@ -104,3 +104,22 @@ def test_get_room_list_returns_sorted_by_created_at_asc(client):
     data = response.json()
     descriptions = [room["description"] for room in data]
     assert descriptions == ["First room", "Second room"]
+
+
+@pytest.mark.django_db
+def test_delete_room_removes_existing_room(client):
+    room = Room.objects.create(description="First room", price_per_night=Decimal("1000.00"))
+    response = client.post("/rooms/delete", data={"room_id": room.id})
+    assert response.status_code == 200
+    assert Room.objects.count() == 0
+    data = response.json()
+    assert data["deleted"] is True
+
+
+@pytest.mark.django_db
+def test_delete_room_returns_error_for_unknown_room(client):
+    response = client.post("/rooms/delete", data={"room_id": 999})
+
+    assert response.status_code == 404
+    data = response.json()
+    assert "error" in data
