@@ -51,3 +51,56 @@ def test_create_room_rejects_non_positive_price(client):
     data = response.json()
     assert "error" in data
     assert Room.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_get_room_list_returns_created_rooms(client):
+    Room.objects.create(description="Room 1", price_per_night=Decimal("1000.00"))
+    Room.objects.create(description="Room 2", price_per_night=Decimal("2000.00"))
+    response = client.get("/rooms/list")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    descriptions = [room["description"] for room in data]
+    assert "Room 1" in descriptions
+    assert "Room 2" in descriptions
+
+
+@pytest.mark.django_db
+def test_get_room_list_returns_sorted_by_price_asc(client):
+    Room.objects.create(description="Expensive room", price_per_night=Decimal("3000.00"))
+    Room.objects.create(description="Cheap room", price_per_night=Decimal("1000.00"))
+    response = client.get("/rooms/list?sort=price&order=asc")
+    data = response.json()
+    descriptions = [room["description"] for room in data]
+    assert descriptions == ["Cheap room", "Expensive room"]
+
+
+@pytest.mark.django_db
+def test_get_room_list_returns_sorted_by_price_desc(client):
+    Room.objects.create(description="Cheap room", price_per_night=Decimal("1000.00"))
+    Room.objects.create(description="Expensive room", price_per_night=Decimal("3000.00"))
+    response = client.get("/rooms/list?sort=price&order=desc")
+    data = response.json()
+    descriptions = [room["description"] for room in data]
+    assert descriptions == ["Expensive room", "Cheap room"]
+
+
+@pytest.mark.django_db
+def test_get_room_list_returns_sorted_by_created_at_desc(client):
+    Room.objects.create(description="First room", price_per_night=Decimal("1000.00"))
+    Room.objects.create(description="Second room", price_per_night=Decimal("3000.00"))
+    response = client.get("/rooms/list?sort=created_at&order=desc")
+    data = response.json()
+    descriptions = [room["description"] for room in data]
+    assert descriptions == ["Second room", "First room"]
+
+
+@pytest.mark.django_db
+def test_get_room_list_returns_sorted_by_created_at_asc(client):
+    Room.objects.create(description="First room", price_per_night=Decimal("1000.00"))
+    Room.objects.create(description="Second room", price_per_night=Decimal("3000.00"))
+    response = client.get("/rooms/list?sort=created_at&order=asc")
+    data = response.json()
+    descriptions = [room["description"] for room in data]
+    assert descriptions == ["First room", "Second room"]

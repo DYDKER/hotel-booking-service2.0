@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
 
 from hotels import services
 
@@ -13,3 +13,22 @@ def create_room(request):
     except services.RoomValidationError as error:
         return JsonResponse({"error": str(error)}, status=400)
     return JsonResponse({"room_id": room.id}, status=201)
+
+
+@require_GET
+def list_rooms(request):
+    sort = request.GET.get("sort")
+    order = request.GET.get("order", "asc")
+
+    rooms = services.list_rooms(sort=sort, order=order)
+    data = []
+    for room in rooms:
+        data.append(
+            {
+                "room_id": room.id,
+                "description": room.description,
+                "price_per_night": str(room.price_per_night),
+                "created_at": room.created_at.isoformat(),
+            }
+        )
+    return JsonResponse(data, safe=False)
