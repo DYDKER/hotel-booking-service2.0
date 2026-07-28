@@ -42,3 +42,23 @@ def delete_room(request):
     except services.RoomNotFound as error:
         return JsonResponse({"error": str(error)}, status=404)
     return JsonResponse({"deleted": True})
+
+
+@require_POST
+def create_booking(request):
+    room_id = request.POST.get("room_id")
+    date_start = request.POST.get("date_start")
+    date_end = request.POST.get("date_end")
+
+    try:
+        booking = services.create_booking(
+            room_id=room_id,
+            date_start=date_start,
+            date_end=date_end,
+        )
+    except services.RoomNotFound as error:
+        return JsonResponse({"error": str(error)}, status=404)
+    except services.BookingValidationError as error:
+        return JsonResponse({"error": str(error)}, status=400)
+
+    return JsonResponse({"booking_id": booking.id}, status=201)

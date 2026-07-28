@@ -1,6 +1,7 @@
+from datetime import date
 from decimal import Decimal
 
-from hotels.models import Room
+from hotels.models import Booking, Room
 
 
 class RoomValidationError(Exception):
@@ -8,6 +9,10 @@ class RoomValidationError(Exception):
 
 
 class RoomNotFound(Exception):
+    pass
+
+
+class BookingValidationError(Exception):
     pass
 
 
@@ -41,3 +46,25 @@ def delete_room(room_id):
     except Room.DoesNotExist:
         raise RoomNotFound("room not found") from None
     room.delete()
+
+
+def create_booking(room_id: str, date_start: date, date_end: date) -> Booking:
+    try:
+        room = Room.objects.get(pk=room_id)
+    except Room.DoesNotExist:
+        raise RoomNotFound("room not found") from None
+    try:
+        parsed_date_start = date.fromisoformat(date_start)
+        parsed_date_end = date.fromisoformat(date_end)
+    except ValueError:
+        raise BookingValidationError("invalid date format") from None
+    if parsed_date_end < parsed_date_start:
+        raise BookingValidationError(
+            "date_end must be greater than or equal to date_start"
+        ) from None
+    booking = Booking.objects.create(
+        room=room,
+        date_start=parsed_date_start,
+        date_end=parsed_date_end,
+    )
+    return booking

@@ -123,3 +123,4 @@ def test_delete_room_returns_error_for_unknown_room(client):
     assert response.status_code == 404
     data = response.json()
     assert "error" in data
+
