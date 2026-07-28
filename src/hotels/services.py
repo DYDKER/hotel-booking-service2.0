@@ -16,6 +16,10 @@ class BookingValidationError(Exception):
     pass
 
 
+class BookingNotFound(Exception):
+    pass
+
+
 def create_room(description: str, price_per_night: str) -> Room:
     if description is None or description.strip() == "":
         raise RoomValidationError("description is required")
@@ -68,3 +72,19 @@ def create_booking(room_id: str, date_start: date, date_end: date) -> Booking:
         date_end=parsed_date_end,
     )
     return booking
+
+
+def delete_booking(booking_id):
+    try:
+        booking = Booking.objects.get(pk=booking_id)
+    except Booking.DoesNotExist:
+        raise BookingNotFound("booking not found") from None
+    booking.delete()
+
+
+def list_bookings(room_id):
+    try:
+        room = Room.objects.get(pk=room_id)
+    except Room.DoesNotExist:
+        raise RoomNotFound("room not found") from None
+    return Booking.objects.filter(room=room).order_by("date_start")

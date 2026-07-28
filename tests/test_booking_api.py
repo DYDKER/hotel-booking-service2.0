@@ -82,3 +82,52 @@ def test_create_booking_rejects_date_end_before_date_start(client):
     assert "error" in data
     assert Booking.objects.count() == 0
 
+
+@pytest.mark.django_db
+def test_delete_booking_removes_existing_booking(client):
+    room = Room.objects.create(description="Room 1", price_per_night=Decimal("1000.00"))
+    booking = Booking.objects.create(
+        room=room,
+        date_start=date(2021, 12, 30),
+        date_end=date(2022, 1, 2),
+    )
+    payload = {
+        "booking_id": booking.id,
+    }
+
+    response = client.post("/bookings/delete", data=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["deleted"] is True
+    assert Booking.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_delete_booking_returns_error_for_unknown_booking(client):
+    payload = {
+        "booking_id": 999,
+    }
+    response = client.post("/bookings/delete", data=payload)
+    assert response.status_code == 404
+    data = response.json()
+    assert "error" in data
+
+
+@pytest.mark.django_db
+def test_get_booking_list_returns_room_bookings_sorted_by_date_start(client):
+    room = Room.objects.create(description="Room 1", price_per_night=Decimal("1000.00"))
+    Booking.objects.create(
+        room=room,
+        date_start=date(2022, 2, 1),
+        date_end=date(2022, 2, 5),
+    )
+    Booking.objects.create(
+        room=room,
+        date_start=date(2022, 1, 1),
+        date_end=date(2022, 1, 5),
+    )
+    response = client.get(f"/bookings/list?room_id={room.id}")
+    assert response.status_code == 200
+    data = response.json()
+    data_starts = [booking["date_start"] for booking in data]
+    assert data_starts == ["2022-01-01", "2022-02-01"]

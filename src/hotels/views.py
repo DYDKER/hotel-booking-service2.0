@@ -62,3 +62,30 @@ def create_booking(request):
         return JsonResponse({"error": str(error)}, status=400)
 
     return JsonResponse({"booking_id": booking.id}, status=201)
+
+
+@require_POST
+def delete_booking(request):
+    booking_id = request.POST.get("booking_id")
+    try:
+        services.delete_booking(booking_id=booking_id)
+    except services.BookingNotFound as error:
+        return JsonResponse({"error": str(error)}, status=404)
+    return JsonResponse({"deleted": True})
+
+
+@require_GET
+def list_bookings(request):
+    room_id = request.GET.get("room_id")
+    try:
+        bookings = services.list_bookings(room_id=room_id)
+    except services.RoomNotFound as error:
+        return JsonResponse({"error": str(error)}, status=404)
+    data = []
+    for booking in bookings:
+        data.append({
+            "booking_id": booking.id,
+            "date_start": booking.date_start.isoformat(),
+            "date_end": booking.date_end.isoformat(),
+        })
+    return JsonResponse(data, safe=False)
