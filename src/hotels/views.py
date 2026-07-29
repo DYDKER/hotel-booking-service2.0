@@ -1,9 +1,11 @@
 from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
 from hotels import services
 
 
+@csrf_exempt
 @require_POST
 def create_room(request):
     description = request.POST.get("description")
@@ -34,6 +36,7 @@ def list_rooms(request):
     return JsonResponse(data, safe=False)
 
 
+@csrf_exempt
 @require_POST
 def delete_room(request):
     room_id = request.POST.get("room_id")
@@ -44,6 +47,7 @@ def delete_room(request):
     return JsonResponse({"deleted": True})
 
 
+@csrf_exempt
 @require_POST
 def create_booking(request):
     room_id = request.POST.get("room_id")
@@ -64,6 +68,7 @@ def create_booking(request):
     return JsonResponse({"booking_id": booking.id}, status=201)
 
 
+@csrf_exempt
 @require_POST
 def delete_booking(request):
     booking_id = request.POST.get("booking_id")
