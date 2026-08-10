@@ -1,0 +1,47 @@
+[project]
+name = "hotel-booking-service2-0"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "sultan",email = "utegenov.sultan@inbox.ru"}
+]
+readme = "README.md"
+requires-python = ">=3.12, <3.14"
+dependencies = [
+    "django (>=5.2,<5.3)",
+    "psycopg[binary] (>=3.3.4,<4.0.0)",
+    "pydantic-settings (>=2.14.2,<3.0.0)",
+    "gunicorn (>=26.0.0,<27.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "hotels", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "pytest-django (>=4.12.0,<5.0.0)",
+    "ruff (>=0.16.0,<0.17.0)",
+    "pre-commit (>=4.6.1,<5.0.0)"
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = []
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff.lint.per-file-ignores]
+"src/**/migrations/*.py" = ["E501"]
