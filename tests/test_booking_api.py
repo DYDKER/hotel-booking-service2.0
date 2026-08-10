@@ -14,7 +14,7 @@ def test_booking_create_booking_api(client):
         "date_start": "2021-12-30",
         "date_end": "2022-01-02",
     }
-    response = client.post("/bookings/create", data=payload)
+    response = client.post("/bookings/", data=payload)
     assert response.status_code == 201
     data = response.json()
     assert "booking_id" in data
@@ -31,7 +31,7 @@ def test_create_booking_returns_error_for_unknown_room(client):
         "date_start": "2021-12-30",
         "date_end": "2022-01-02",
     }
-    response = client.post("/bookings/create", data=payload)
+    response = client.post("/bookings/", data=payload)
     assert response.status_code == 404
     data = response.json()
     assert "error" in data
@@ -46,7 +46,7 @@ def test_create_booking_rejects_invalid_date_start(client):
         "date_start": "bad date",
         "date_end": "2022-01-02",
     }
-    response = client.post("/bookings/create", data=payload)
+    response = client.post("/bookings/", data=payload)
     assert response.status_code == 400
     data = response.json()
     assert "error" in data
@@ -61,7 +61,7 @@ def test_create_booking_rejects_invalid_date_end(client):
         "date_start": "2021-12-30",
         "date_end": "bad date",
     }
-    response = client.post("/bookings/create", data=payload)
+    response = client.post("/bookings/", data=payload)
     assert response.status_code == 400
     data = response.json()
     assert "error" in data
@@ -76,7 +76,7 @@ def test_create_booking_rejects_date_end_before_date_start(client):
         "date_start": "2022-01-02",
         "date_end": "2021-12-30",
     }
-    response = client.post("/bookings/create", data=payload)
+    response = client.post("/bookings/", data=payload)
     assert response.status_code == 400
     data = response.json()
     assert "error" in data
@@ -91,11 +91,7 @@ def test_delete_booking_removes_existing_booking(client):
         date_start=date(2021, 12, 30),
         date_end=date(2022, 1, 2),
     )
-    payload = {
-        "booking_id": booking.id,
-    }
-
-    response = client.post("/bookings/delete", data=payload)
+    response = client.delete(f"/bookings/{booking.id}/")
     assert response.status_code == 200
     data = response.json()
     assert data["deleted"] is True
@@ -104,10 +100,7 @@ def test_delete_booking_removes_existing_booking(client):
 
 @pytest.mark.django_db
 def test_delete_booking_returns_error_for_unknown_booking(client):
-    payload = {
-        "booking_id": 999,
-    }
-    response = client.post("/bookings/delete", data=payload)
+    response = client.delete("/bookings/999/")
     assert response.status_code == 404
     data = response.json()
     assert "error" in data
@@ -126,7 +119,7 @@ def test_get_booking_list_returns_room_bookings_sorted_by_date_start(client):
         date_start=date(2022, 1, 1),
         date_end=date(2022, 1, 5),
     )
-    response = client.get(f"/bookings/list?room_id={room.id}")
+    response = client.get(f"/rooms/{room.id}/bookings/")
     assert response.status_code == 200
     data = response.json()
     data_starts = [booking["date_start"] for booking in data]

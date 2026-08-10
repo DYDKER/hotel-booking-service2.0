@@ -111,7 +111,7 @@ http://localhost:8000
 ### Создать номер
 
 ```http
-POST /rooms/create
+POST /rooms/
 ```
 
 Поля формы:
@@ -122,7 +122,7 @@ POST /rooms/create
 Пример:
 
 ```powershell
-curl -X POST -d "description=Room 1" -d "price_per_night=1500.00" http://localhost:8000/rooms/create
+curl.exe -X POST -d "description=Room 1" -d "price_per_night=1500.00" http://localhost:8000/rooms/
 ```
 
 Ответ:
@@ -134,17 +134,16 @@ curl -X POST -d "description=Room 1" -d "price_per_night=1500.00" http://localho
 ### Удалить номер
 
 ```http
-POST /rooms/delete
+DELETE /rooms/1/
 ```
 
 Поля формы:
 
-- `room_id`
 
 Пример:
 
 ```powershell
-curl -X POST -d "room_id=1" http://localhost:8000/rooms/delete
+curl.exe -X DELETE http://localhost:8000/rooms/1/
 ```
 
 Ответ:
@@ -156,7 +155,7 @@ curl -X POST -d "room_id=1" http://localhost:8000/rooms/delete
 ### Получить список номеров
 
 ```http
-GET /rooms/list
+GET /rooms/
 ```
 
 Необязательные query-параметры:
@@ -169,9 +168,9 @@ GET /rooms/list
 Примеры:
 
 ```powershell
-curl "http://localhost:8000/rooms/list"
-curl "http://localhost:8000/rooms/list?sort=price&order=asc"
-curl "http://localhost:8000/rooms/list?sort=created_at&order=desc"
+curl.exe "http://localhost:8000/rooms/"
+curl.exe "http://localhost:8000/rooms/?sort=price&order=asc"
+curl.exe "http://localhost:8000/rooms/?sort=created_at&order=desc"
 ```
 
 Ответ:
@@ -190,7 +189,7 @@ curl "http://localhost:8000/rooms/list?sort=created_at&order=desc"
 ### Создать бронирование
 
 ```http
-POST /bookings/create
+POST /bookings/
 ```
 
 Поля формы:
@@ -204,7 +203,7 @@ POST /bookings/create
 Пример:
 
 ```powershell
-curl -X POST -d "room_id=1" -d "date_start=2021-12-30" -d "date_end=2022-01-02" http://localhost:8000/bookings/create
+curl.exe -X POST -d "room_id=1" -d "date_start=2021-12-30" -d "date_end=2022-01-02" http://localhost:8000/bookings/
 ```
 
 Ответ:
@@ -216,17 +215,16 @@ curl -X POST -d "room_id=1" -d "date_start=2021-12-30" -d "date_end=2022-01-02" 
 ### Удалить бронирование
 
 ```http
-POST /bookings/delete
+DELETE /bookings/1/
 ```
 
 Поля формы:
 
-- `booking_id`
 
 Пример:
 
 ```powershell
-curl -X POST -d "booking_id=1" http://localhost:8000/bookings/delete
+curl.exe -X DELETE http://localhost:8000/bookings/1/
 ```
 
 Ответ:
@@ -238,7 +236,7 @@ curl -X POST -d "booking_id=1" http://localhost:8000/bookings/delete
 ### Получить список бронирований номера
 
 ```http
-GET /bookings/list?room_id=1
+GET /rooms/1/bookings/
 ```
 
 Бронирования сортируются по `date_start` по возрастанию.
@@ -246,7 +244,7 @@ GET /bookings/list?room_id=1
 Пример:
 
 ```powershell
-curl "http://localhost:8000/bookings/list?room_id=1"
+curl.exe "http://localhost:8000/rooms/1/bookings/"
 ```
 
 Ответ:

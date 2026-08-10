@@ -12,7 +12,7 @@ def test_create_room_returns_room_id(client):
         "price_per_night": "1500.00",
     }
 
-    response = client.post("/rooms/create", data=payload)
+    response = client.post("/rooms/", data=payload)
 
     assert response.status_code == 201
     data = response.json()
@@ -30,7 +30,7 @@ def test_create_room_rejects_empty_description(client):
         "price_per_night": "1500.00",
     }
 
-    response = client.post("/rooms/create", data=payload)
+    response = client.post("/rooms/", data=payload)
 
     assert response.status_code == 400
     data = response.json()
@@ -45,7 +45,7 @@ def test_create_room_rejects_non_positive_price(client):
         "price_per_night": "0.00",
     }
 
-    response = client.post("/rooms/create", data=payload)
+    response = client.post("/rooms/", data=payload)
 
     assert response.status_code == 400
     data = response.json()
@@ -57,7 +57,7 @@ def test_create_room_rejects_non_positive_price(client):
 def test_get_room_list_returns_created_rooms(client):
     Room.objects.create(description="Room 1", price_per_night=Decimal("1000.00"))
     Room.objects.create(description="Room 2", price_per_night=Decimal("2000.00"))
-    response = client.get("/rooms/list")
+    response = client.get("/rooms/")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 2
@@ -70,7 +70,7 @@ def test_get_room_list_returns_created_rooms(client):
 def test_get_room_list_returns_sorted_by_price_asc(client):
     Room.objects.create(description="Expensive room", price_per_night=Decimal("3000.00"))
     Room.objects.create(description="Cheap room", price_per_night=Decimal("1000.00"))
-    response = client.get("/rooms/list?sort=price&order=asc")
+    response = client.get("/rooms/?sort=price&order=asc")
     data = response.json()
     descriptions = [room["description"] for room in data]
     assert descriptions == ["Cheap room", "Expensive room"]
@@ -80,7 +80,7 @@ def test_get_room_list_returns_sorted_by_price_asc(client):
 def test_get_room_list_returns_sorted_by_price_desc(client):
     Room.objects.create(description="Cheap room", price_per_night=Decimal("1000.00"))
     Room.objects.create(description="Expensive room", price_per_night=Decimal("3000.00"))
-    response = client.get("/rooms/list?sort=price&order=desc")
+    response = client.get("/rooms/?sort=price&order=desc")
     data = response.json()
     descriptions = [room["description"] for room in data]
     assert descriptions == ["Expensive room", "Cheap room"]
@@ -90,7 +90,7 @@ def test_get_room_list_returns_sorted_by_price_desc(client):
 def test_get_room_list_returns_sorted_by_created_at_desc(client):
     Room.objects.create(description="First room", price_per_night=Decimal("1000.00"))
     Room.objects.create(description="Second room", price_per_night=Decimal("3000.00"))
-    response = client.get("/rooms/list?sort=created_at&order=desc")
+    response = client.get("/rooms/?sort=created_at&order=desc")
     data = response.json()
     descriptions = [room["description"] for room in data]
     assert descriptions == ["Second room", "First room"]
@@ -100,7 +100,7 @@ def test_get_room_list_returns_sorted_by_created_at_desc(client):
 def test_get_room_list_returns_sorted_by_created_at_asc(client):
     Room.objects.create(description="First room", price_per_night=Decimal("1000.00"))
     Room.objects.create(description="Second room", price_per_night=Decimal("3000.00"))
-    response = client.get("/rooms/list?sort=created_at&order=asc")
+    response = client.get("/rooms/?sort=created_at&order=asc")
     data = response.json()
     descriptions = [room["description"] for room in data]
     assert descriptions == ["First room", "Second room"]
@@ -109,7 +109,7 @@ def test_get_room_list_returns_sorted_by_created_at_asc(client):
 @pytest.mark.django_db
 def test_delete_room_removes_existing_room(client):
     room = Room.objects.create(description="First room", price_per_night=Decimal("1000.00"))
-    response = client.post("/rooms/delete", data={"room_id": room.id})
+    response = client.delete(f"/rooms/{room.id}/")
     assert response.status_code == 200
     assert Room.objects.count() == 0
     data = response.json()
@@ -118,7 +118,7 @@ def test_delete_room_removes_existing_room(client):
 
 @pytest.mark.django_db
 def test_delete_room_returns_error_for_unknown_room(client):
-    response = client.post("/rooms/delete", data={"room_id": 999})
+    response = client.delete("/rooms/999/")
 
     assert response.status_code == 404
     data = response.json()

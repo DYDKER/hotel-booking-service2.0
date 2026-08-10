@@ -5,6 +5,7 @@ class Room(models.Model):
     description = models.TextField()
     price_per_night = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class Booking(models.Model):
@@ -12,3 +13,4 @@ class Booking(models.Model):
     date_start = models.DateField()
     date_end = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
